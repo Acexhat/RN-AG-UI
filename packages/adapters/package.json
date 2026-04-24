@@ -1,0 +1,36 @@
+{
+  "name": "@ag-ui/adapters",
+  "version": "0.0.1",
+  "description": "AG-UI backend adapters — LangGraph, CopilotKit, and more",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./langgraph": {
+      "types": "./dist/langgraph/index.d.ts",
+      "default": "./dist/langgraph/index.js"
+    },
+    "./copilotkit": {
+      "types": "./dist/copilotkit/index.d.ts",
+      "default": "./dist/copilotkit/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@ag-ui/core": "workspace:*",
+    "@ag-ui/client": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "files": ["dist"],
+  "sideEffects": false
+}

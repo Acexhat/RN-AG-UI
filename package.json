@@ -1,0 +1,29 @@
+{
+  "name": "rn-ag-ui",
+  "version": "0.0.1",
+  "private": true,
+  "description": "AG-UI React Native Renderer — headless UI runtime for AG-UI event streams",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:core": "pnpm --filter @ag-ui/core build",
+    "build:client": "pnpm --filter @ag-ui/client build",
+    "build:react-native": "pnpm --filter @ag-ui/react-native build",
+    "build:adapters": "pnpm --filter @ag-ui/adapters build",
+    "dev": "pnpm -r --parallel dev",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.1.0"
+}

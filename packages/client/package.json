@@ -1,0 +1,27 @@
+{
+  "name": "@ag-ui/client",
+  "version": "0.0.1",
+  "description": "AG-UI transport client — WebSocket, SSE, and mock modes",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsc --build --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@ag-ui/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "files": ["dist"],
+  "sideEffects": false
+}

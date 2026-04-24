@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "module": "CommonJS",
+    "lib": ["ES2020"]
+  },
+  "references": [
+    { "path": "../core" }
+  ],
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
