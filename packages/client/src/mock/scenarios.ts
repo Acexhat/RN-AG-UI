@@ -142,11 +142,93 @@ const error: MockScenarioFn = () => {
   ]
 }
 
+const callAction: MockScenarioFn = (input) => {
+  const runId = "mock-run-5"
+  const msgId1 = "mock-msg-5a"
+  const msgId2 = "mock-msg-5b"
+  const contextNote = input
+    ? `I can see your current state. Let me update things now.`
+    : `Sure, let me handle that.`
+  const confirm = "Done! I've added the item, applied a coupon, and navigated to your cart."
+
+  return [
+    {
+      type: EventType.RUN_STARTED,
+      payload: { runId },
+      meta: { id: "e1", timestamp: Date.now() },
+    },
+    {
+      type: EventType.TEXT_MESSAGE_START,
+      payload: { messageId: msgId1, role: "assistant" },
+      meta: { id: "e2" },
+    },
+    ...contextNote.split("").map((c, i) => ({
+      type: EventType.TEXT_MESSAGE_CONTENT,
+      payload: { messageId: msgId1, delta: c },
+      meta: { id: `e3-${i}` },
+    })),
+    {
+      type: EventType.TEXT_MESSAGE_END,
+      payload: { messageId: msgId1 },
+      meta: { id: "e4" },
+    },
+    {
+      type: EventType.CALL_ACTION,
+      payload: {
+        name: "addToCart",
+        args: { sku: "SNEAKER-WHITE-42", qty: 1, price: 129.99 },
+        actionId: "act-1",
+      },
+      meta: { id: "e5" },
+    },
+    {
+      type: EventType.CALL_ACTION,
+      payload: {
+        name: "applyCoupon",
+        args: { code: "WELCOME10" },
+        actionId: "act-2",
+      },
+      meta: { id: "e6" },
+    },
+    {
+      type: EventType.SHOW_TOAST,
+      payload: { message: "Coupon WELCOME10 applied — 10% off!", variant: "success" },
+      meta: { id: "e7" },
+    },
+    {
+      type: EventType.CALL_ACTION,
+      payload: { name: "navigateToScreen", args: { screen: "Cart" }, actionId: "act-3" },
+      meta: { id: "e8" },
+    },
+    {
+      type: EventType.TEXT_MESSAGE_START,
+      payload: { messageId: msgId2, role: "assistant" },
+      meta: { id: "e9" },
+    },
+    ...confirm.split("").map((c, i) => ({
+      type: EventType.TEXT_MESSAGE_CONTENT,
+      payload: { messageId: msgId2, delta: c },
+      meta: { id: `e10-${i}` },
+    })),
+    {
+      type: EventType.TEXT_MESSAGE_END,
+      payload: { messageId: msgId2 },
+      meta: { id: "e11" },
+    },
+    {
+      type: EventType.RUN_FINISHED,
+      payload: { runId },
+      meta: { id: "e12", timestamp: Date.now() + 200 },
+    },
+  ]
+}
+
 export const builtInScenarios: Record<string, MockScenarioFn> = {
   greeting,
   toolCall,
   navigation,
   error,
+  callAction,
   /** Default scenario when none is specified. */
   default: greeting,
 }

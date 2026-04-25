@@ -1,6 +1,6 @@
 // Context + Provider
 export { AgentContext, useAgentContext } from "./context/AgentContext"
-export type { AgentContextValue } from "./context/AgentContext"
+export type { AgentContextValue, AgentActionHandler } from "./context/AgentContext"
 export { AgentProvider } from "./context/AgentProvider"
 export type { AgentProviderProps } from "./context/AgentProvider"
 
@@ -23,3 +23,5 @@ export { StreamingIndicator } from "./components/defaults/StreamingIndicator"
 export { useAgentUI } from "./hooks/useAgentUI"
 export type { UseAgentUIResult } from "./hooks/useAgentUI"
 export { useEngineState } from "./hooks/useEngineState"
+export { useAgentReadable } from "./hooks/useAgentReadable"
+export { useAgentAction } from "./hooks/useAgentAction"

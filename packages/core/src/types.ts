@@ -31,6 +31,9 @@ export enum EventType {
   CLOSE_MODAL = "CLOSE_MODAL",
   SHOW_TOAST = "SHOW_TOAST",
 
+  // Bidirectional state — LLM calls a registered app action by name
+  CALL_ACTION = "CALL_ACTION",
+
   // Custom
   CUSTOM = "CUSTOM",
 }
@@ -171,3 +174,32 @@ export interface StateDeltaPayload {
 export interface StateSnapshotPayload {
   snapshot: unknown
 }
+
+// ─── Bidirectional state ─────────────────────────────────────────────────────
+
+/**
+ * Emitted by the backend when the LLM wants to invoke a named action
+ * registered on the client via useAgentAction().
+ *
+ * Flow:
+ *   1. Developer registers: useAgentAction("addToCart", (args) => ...)
+ *   2. Developer sends readable state on each turn:
+ *        useAgentReadable("cart", cart.items)
+ *   3. Backend receives that context, LLM decides to call addToCart
+ *   4. Backend emits: { type: "CALL_ACTION", payload: { name: "addToCart", args: { sku: "X1" } } }
+ *   5. AgentProvider finds the registered handler, calls it with args
+ */
+export interface CallActionPayload {
+  /** Name matching a useAgentAction() registration. */
+  name: string
+  /** Arguments the LLM wants to pass to the action. */
+  args?: Record<string, unknown>
+  /** Optional correlation ID so the backend can match the result. */
+  actionId?: string
+}
+
+/**
+ * Context object automatically injected into every send() call.
+ * Built from all active useAgentReadable() registrations.
+ */
+export type ReadableContext = Record<string, unknown>
