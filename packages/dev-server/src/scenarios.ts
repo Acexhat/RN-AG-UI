@@ -94,10 +94,106 @@ const errorScenario: Scenario = {
   },
 }
 
+/**
+ * Demonstrates bidirectional state sync:
+ *
+ * 1. LLM reads the cart from context (sent automatically by useAgentReadable)
+ * 2. Emits a text message summarising what it sees
+ * 3. Calls addToCart via CALL_ACTION — app state mutates live
+ * 4. Calls navigateToCart via CALL_ACTION — app navigates
+ * 5. Sends a final confirmation message
+ *
+ * The "context" field in the request body is echoed back in the first
+ * message so you can see what the backend received.
+ */
+const callAction: Scenario = {
+  name: "callAction",
+  description: "Bidirectional state sync — LLM reads context and calls app actions",
+  events: (input = "") => {
+    const rid = runId()
+    const msgId1 = `msg-${Date.now()}`
+    const msgId2 = `msg-${Date.now() + 1}`
+    const msgId3 = `msg-${Date.now() + 2}`
+
+    // Simulate what the LLM would say after reading the readable context
+    const contextNote =
+      input.length > 0
+        ? `I can see your current state. Let me update your cart now.`
+        : `Sure, I'll add that to your cart.`
+
+    const confirmText = "Done! I've added the sneakers to your cart and navigated you there."
+
+    return [
+      { type: EventType.RUN_STARTED, payload: { runId: rid }, meta: { id: "e1" } },
+
+      // LLM acknowledges what it sees
+      { type: EventType.TEXT_MESSAGE_START, payload: { messageId: msgId1, role: "assistant" }, meta: { id: "e2" } },
+      ...contextNote.split("").map((c, i): AGUIEvent => ({
+        type: EventType.TEXT_MESSAGE_CONTENT,
+        payload: { messageId: msgId1, delta: c },
+        meta: { id: `e3-${i}` },
+      })),
+      { type: EventType.TEXT_MESSAGE_END, payload: { messageId: msgId1 }, meta: { id: "e4" } },
+
+      // LLM calls addToCart — app state mutates
+      {
+        type: EventType.CALL_ACTION,
+        payload: {
+          name: "addToCart",
+          args: { sku: "SNEAKER-WHITE-42", qty: 1, price: 129.99 },
+          actionId: "act-1",
+        },
+        meta: { id: "e5" },
+      },
+
+      // LLM applies a discount coupon
+      {
+        type: EventType.CALL_ACTION,
+        payload: {
+          name: "applyCoupon",
+          args: { code: "WELCOME10" },
+          actionId: "act-2",
+        },
+        meta: { id: "e6" },
+      },
+
+      // LLM shows a toast
+      {
+        type: EventType.SHOW_TOAST,
+        payload: { message: "Coupon WELCOME10 applied — 10% off!", variant: "success" },
+        meta: { id: "e7" },
+      },
+
+      // LLM navigates to cart
+      {
+        type: EventType.CALL_ACTION,
+        payload: {
+          name: "navigateToScreen",
+          args: { screen: "Cart" },
+          actionId: "act-3",
+        },
+        meta: { id: "e8" },
+      },
+
+      // Confirmation message
+      { type: EventType.TEXT_MESSAGE_START, payload: { messageId: msgId3, role: "assistant" }, meta: { id: "e9" } },
+      ...confirmText.split("").map((c, i): AGUIEvent => ({
+        type: EventType.TEXT_MESSAGE_CONTENT,
+        payload: { messageId: msgId3, delta: c },
+        meta: { id: `e10-${i}` },
+      })),
+      { type: EventType.TEXT_MESSAGE_END, payload: { messageId: msgId3 }, meta: { id: "e11" } },
+
+      { type: EventType.RUN_FINISHED, payload: { runId: rid }, meta: { id: "e12" } },
+    ]
+  },
+}
+
 export const scenarios: Record<string, Scenario> = {
   greeting,
   weather,
   navigation,
+  callAction,
   error: errorScenario,
 }
 

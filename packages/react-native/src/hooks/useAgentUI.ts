@@ -7,9 +7,15 @@ export interface UseAgentUIResult {
   state: EngineState
   /**
    * Send a user input string through the connected client.
-   * No-ops if no client is provided to the AgentProvider.
+   *
+   * Automatically merges all active useAgentReadable() registrations into
+   * the `context` object so the backend always receives up-to-date app state
+   * alongside the user's message.
+   *
+   * Any additional context passed here is merged on top of readables,
+   * with the explicit argument taking precedence on key conflicts.
    */
-  send: (input: string, context?: Record<string, unknown>) => void
+  send: (input: string, extraContext?: Record<string, unknown>) => void
   /** True while the engine is processing a run. */
   isStreaming: boolean
   /** Non-null when the engine has entered an error state. */
@@ -34,17 +40,24 @@ export interface UseAgentUIResult {
  * ```
  */
 export function useAgentUI(): UseAgentUIResult {
-  const { state, client } = useAgentContext()
+  const { state, client, readablesRef } = useAgentContext()
 
   const send = useCallback(
-    (input: string, context?: Record<string, unknown>) => {
+    (input: string, extraContext?: Record<string, unknown>) => {
       if (!client) {
         console.warn("[ag-ui] useAgentUI.send called but no client is connected")
         return
       }
+
+      // Snapshot readables at call time — always fresh, never stale
+      const context: Record<string, unknown> = {
+        ...readablesRef.current,
+        ...extraContext,
+      }
+
       client.send(input, context)
     },
-    [client]
+    [client, readablesRef]
   )
 
   return {
